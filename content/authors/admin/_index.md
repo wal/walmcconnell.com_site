@@ -42,7 +42,7 @@ social:
   link: '#contact'  # For a direct email link, use "mailto:walter.mcconnell@gmail.com".
 - icon: twitter
   icon_pack: fab
-  link: https://twitter.com/wal
+  link: https://twitter.com/walmc
 - icon: github
   icon_pack: fab
   link: https://github.com/wal
