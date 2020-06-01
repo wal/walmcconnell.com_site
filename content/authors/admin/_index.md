@@ -21,13 +21,14 @@ organizations:
 bio: Software Engineer & Data Scientist
 
 interests:
-- SAAS Poduct Analytics
-- Building Things
+- SAAS Product and Commercial Analytics
+- Leadership & High Performance teams
+- Storytelling with Data
 - Performance analytics in elite sport
 
 education:
   courses:
-  - course: Computer Science
+  - course: Computer Science (1st class Hons)
     institution: Trinity College Dublin
     year: 1999
 
@@ -60,8 +61,7 @@ social:
 
 I'm a data scientist and software engineer based in Dublin, Ireland :shamrock:. I'm facinated by the complexity, ambiguity and challenge of building really successful SAAS products. I work as part of the Analytics & Data Science team at [Intercom](https://intercom.io) where I help product and engineering leadership research and operationalise the commercial, adoption and engagement metrics needed for building :ok_hand: SAAS products.
 
-Before all this finance and product :bar_chart: stuff, I was an engineering leader building massive scale data processing systems across multiple industries.
+Before all this finance and product :bar_chart: stuff, I was a software engineering leader building massive scale data processing systems. I also spent time working with elite sports organisations helping them think about how analytics can help optimize sporting performance.
 
-
-
+I'd :heart: to hear from you, please drop me a note via the messenger, or the social links below!
 
