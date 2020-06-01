@@ -58,4 +58,10 @@ social:
 #- Visitors
 ---
 
-I'm an XYZ
+I'm a data scientist and software engineer based in Dublin, Ireland :shamrock:. I'm facinated by the complexity, ambiguity and challenge of building really successful SAAS products. I work as part of the Analytics & Data Science team at [Intercom](https://intercom.io) where I help product and engineering leadership research and operationalise the commercial, adoption and engagement metrics needed for building :ok_hand: SAAS products.
+
+Before all this finance and product :bar_chart: stuff, I was an engineering leader building massive scale data processing systems across multiple industries.
+
+
+
+
