@@ -1,12 +1,12 @@
 ---
-title: Subway Challenge 2020
+title: NYC Runs Subway Challenge 2020 - Pulling data from the Strava API
 author: Wal
 date: '2020-06-01'
 categories:
   - fitness
 tags:
-  - strava
   - running
+  - strava
 lastmod: '2020-06-01T16:15:12+01:00'
 featured: no
 draft: no
@@ -16,14 +16,18 @@ image:
   preview_only: no
 ---
 
+I've signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
-I just signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge)
+I'm targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
 
-```{r progress_chart, echo=FALSE, message=FALSE, warning=FALSE}
+I'm tracking my progress by pulling my running data down from the strava API and monitoring it here ....
+
+```{r progress_chart, echo=FALSE, fig.height=8, fig.width=6, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(ggTimeSeries)
 library(lubridate)
 library(patchwork)
+library(plotly)
 plot_data <- read_csv('data/wal_strava.csv')
 
 day_chart <- plot_data %>%  
@@ -35,21 +39,110 @@ day_chart <- plot_data %>%
                           monthBorderColour = "grey50",
                           monthBorderLineEnd = "round"
   ) +
-  labs(title = "Subway Challenge 2020", y = NULL, x = NULL) +
   scale_fill_gradient(low="grey80", high="darkgreen") +
-  #guides(fill = FALSE) +
-  facet_null()
+  labs(title = "Runs per week", 
+       subtitle = "Need to average 4, 7.5km runs per week ",
+       fill = "Run Distance (Km) ",
+       y = NULL, x = NULL) +
+  facet_null() +
+  theme_minimal() +
+  theme(legend.position='bottom')
 
 
-line_chart <- plot_data %>%
+cumsum_distance_data <- plot_data %>%
   arrange(start_date) %>%
   mutate(total_distance = cumsum(distance)) %>%
-  mutate(total_distance = ifelse(start_date > today(), NA, total_distance)) %>%
-  ggplot(aes(start_date, total_distance)) + geom_line() +
-   geom_hline(yintercept = 394)
+  mutate(total_distance = ifelse(start_date > today(), NA, total_distance)) 
+
+latest_value <- cumsum_distance_data %>%
+  arrange(start_date) %>%
+  filter(!is.na(total_distance)) %>%
+  summarise(start_date = last(start_date), 
+            total_distance = last(total_distance))
+
+target <- plot_data %>%
+  mutate(daily_target = 3.75) %>%
+  mutate(total_target = cumsum(daily_target))
+
+line_chart <- cumsum_distance_data %>%
+  ggplot(aes(start_date, total_distance)) + 
+  geom_line(data = target, aes(x = start_date, y = total_target), color = "grey90", size = 0.5) +
+  geom_line(color = "darkgreen", size = 2) +
+  geom_label(data = latest_value,
+             aes(label = paste0(total_distance, 'km')),
+             color = "darkgreen") +
+  
+  geom_hline(yintercept = 394, color = "orange", size = 2) +
+  labs(title = "Progress towards 394km", 
+       y = NULL, x = NULL) +
+  theme_minimal() +
+  theme(legend.position='bottom')
 
 day_chart + line_chart + plot_layout(ncol = 1)
   
 
 ```
+
+## Pulling activity data from the Strava API using R
+
+
+The [Strava API](https://developers.strava.com/docs/reference/) is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.
+
+### OAuth Authentication
+
+To query the API you need an OAuth token. The [Strava OAuth documentation](https://developers.strava.com/docs/authentication/) is comprehensive but in summary the steps are 
+
+1. Create a new app and generate a client_id and secret for api access (https://developers.strava.com/docs/getting-started/#account)
+
+2. Using the httr library, generate the oauth token
+
+```{r oauth_token, eval = FALSE}
+library(httr)
+app <- oauth_app("strava", <CLIENT_ID>, <SECRET>)
+endpoint <- oauth_endpoint(
+  request = NULL,
+  authorize = "https://www.strava.com/oauth/authorize",
+  access = "https://www.strava.com/oauth/token"
+)
+
+token <- oauth2.0_token(endpoint
+                        , app
+                        , as_header = FALSE
+                        , scope = "activity:read_all")
+
+```
+
+3. Query the athlete/activities endpoint
+
+```{r athlete_activities, eval=FALSE}
+
+page_number <- 1
+data_pages <- list()
+
+repeat {
+  resp <- GET(
+    url = "https://www.strava.com/api/v3/athlete/activities",
+    config = token,
+    query = list(per_page = 200, page = page_number))
+  
+  if (http_type(resp) != "application/json") {
+    stop("API did not return json", call. = FALSE)
+    break
+  }
+
+  response_content <- content(resp, "text")
+  
+  data_pages[[page_number]] <- jsonlite::fromJSON(response_content, flatten = FALSE)
+
+  if (length(content(req)) < 200) {
+    break
+  } else {
+    page_number <- page_number + 1
+  }
+}
+
+data <- rbind_pages(data_pages)
+runs_data <- data %>% filter(type == "Run")
+```
+
 

@@ -1,12 +1,12 @@
 ---
-title: Subway Challenge 2020
+title: NYC Runs Subway Challenge 2020 - Pulling data from the Strava API
 author: Wal
 date: '2020-06-01'
 categories:
   - fitness
 tags:
-  - strava
   - running
+  - strava
 lastmod: '2020-06-01T16:15:12+01:00'
 featured: no
 draft: no
@@ -18,5 +18,61 @@ image:
 
 
 
-<p>I just signed up to the <a href="https://nycruns.com/race/nycruns-subway-system-challenge">NYC Runs Subway Challenge</a></p>
-<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="672" /></p>
+<p>I’ve signed up to the <a href="https://nycruns.com/race/nycruns-subway-system-challenge">NYC Runs Subway Challenge</a> which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).</p>
+<p>I’m targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry.</p>
+<p>I’m tracking my progress by pulling my running data down from the strava API and monitoring it here ….</p>
+<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="576" /></p>
+<div id="pulling-activity-data-from-the-strava-api-using-r" class="section level2">
+<h2>Pulling activity data from the Strava API using R</h2>
+<p>The <a href="https://developers.strava.com/docs/reference/">Strava API</a> is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.</p>
+<div id="oauth-authentication" class="section level3">
+<h3>OAuth Authentication</h3>
+<p>To query the API you need an OAuth token. The <a href="https://developers.strava.com/docs/authentication/">Strava OAuth documentation</a> is comprehensive but in summary the steps are</p>
+<ol style="list-style-type: decimal">
+<li><p>Create a new app and generate a client_id and secret for api access (<a href="https://developers.strava.com/docs/getting-started/#account" class="uri">https://developers.strava.com/docs/getting-started/#account</a>)</p></li>
+<li><p>Using the httr library, generate the oauth token</p></li>
+</ol>
+<pre class="r"><code>library(httr)
+app &lt;- oauth_app(&quot;strava&quot;, &lt;CLIENT_ID&gt;, &lt;SECRET&gt;)
+endpoint &lt;- oauth_endpoint(
+  request = NULL,
+  authorize = &quot;https://www.strava.com/oauth/authorize&quot;,
+  access = &quot;https://www.strava.com/oauth/token&quot;
+)
+
+token &lt;- oauth2.0_token(endpoint
+                        , app
+                        , as_header = FALSE
+                        , scope = &quot;activity:read_all&quot;)</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Query the athlete/activities endpoint</li>
+</ol>
+<pre class="r"><code>page_number &lt;- 1
+data_pages &lt;- list()
+
+repeat {
+  resp &lt;- GET(
+    url = &quot;https://www.strava.com/api/v3/athlete/activities&quot;,
+    config = token,
+    query = list(per_page = 200, page = page_number))
+  
+  if (http_type(resp) != &quot;application/json&quot;) {
+    stop(&quot;API did not return json&quot;, call. = FALSE)
+    break
+  }
+
+  response_content &lt;- content(resp, &quot;text&quot;)
+  
+  data_pages[[page_number]] &lt;- jsonlite::fromJSON(response_content, flatten = FALSE)
+
+  if (length(content(req)) &lt; 200) {
+    break
+  } else {
+    page_number &lt;- page_number + 1
+  }
+}
+
+data &lt;- rbind_pages(data_pages)
+runs_data &lt;- data %&gt;% filter(type == &quot;Run&quot;)</code></pre>
+</div>
+</div>
