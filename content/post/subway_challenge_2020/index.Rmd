@@ -19,4 +19,37 @@ image:
 
 I just signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge)
 
+```{r progress_chart, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggTimeSeries)
+library(lubridate)
+library(patchwork)
+plot_data <- read_csv('data/wal_strava.csv')
+
+day_chart <- plot_data %>%  
+  ggplot_calendar_heatmap('start_date',
+                          'distance',
+                          dayBorderSize = 0.25,
+                          dayBorderColour = "grey50",
+                          monthBorderSize = 1, 
+                          monthBorderColour = "grey50",
+                          monthBorderLineEnd = "round"
+  ) +
+  labs(title = "Subway Challenge 2020", y = NULL, x = NULL) +
+  scale_fill_gradient(low="grey80", high="darkgreen") +
+  #guides(fill = FALSE) +
+  facet_null()
+
+
+line_chart <- plot_data %>%
+  arrange(start_date) %>%
+  mutate(total_distance = cumsum(distance)) %>%
+  mutate(total_distance = ifelse(start_date > today(), NA, total_distance)) %>%
+  ggplot(aes(start_date, total_distance)) + geom_line() +
+   geom_hline(yintercept = 394)
+
+day_chart + line_chart + plot_layout(ncol = 1)
+  
+
+```
 
