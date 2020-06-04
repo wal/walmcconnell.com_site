@@ -35,23 +35,9 @@ plot_data <- read_csv('data/wal_strava.csv')
 ```
 
 
-
-### Training Log
-
-```{r, echo=FALSE, warning=FALSE}
-plot_data %>%
-  select(start_date, distance) %>%
-  filter(distance > 0, start_date <= today()) %>%
-  rename(Date = start_date) %>%
-  mutate(distance = paste0(distance, 'km')) %>%
-  kable()
-```
-
-
-### Progress Tracking
-
-```{r progress_chart, echo=FALSE, fig.height=12, fig.width=8, message=FALSE, warning=FALSE}
-
+### Tracking Progress
+```{r progress_chart, echo=FALSE, fig.height=10, fig.width=8, message=FALSE, warning=FALSE}
+library(ggrepel)
 day_chart <- plot_data %>%  
   ggplot_calendar_heatmap('start_date',
                           'distance',
@@ -62,14 +48,25 @@ day_chart <- plot_data %>%
                           monthBorderLineEnd = "round"
   ) +
   scale_fill_gradient(low="grey80", high="darkgreen") +
-  labs(title = "Runs per week", 
-       subtitle = "Need to average 4, 7.5km runs per week ",
+  labs(title = "Weekly runs", 
        fill = "Run Distance (Km) ",
        y = NULL, x = NULL) +
   facet_null() +
   theme_minimal() +
-  theme(legend.position='bottom')
+  theme(legend.position='bottom'
+        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
 
+daily_runs_chart <- plot_data %>%
+  ggplot(aes(start_date, distance, color = distance)) + 
+  geom_col() +
+  scale_color_gradient(low="grey80", high="darkgreen") +
+  labs(title = "Daily distance", 
+       y = "Distance (km)", 
+       x = NULL) +
+  guides(color = FALSE) +
+  theme_minimal() +
+  theme(legend.position='right' 
+        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
 
 cumsum_distance_data <- plot_data %>%
   arrange(start_date) %>%
@@ -95,12 +92,19 @@ line_chart <- cumsum_distance_data %>%
              color = "darkgreen") +
   
   geom_hline(yintercept = 394, color = "orange", size = 2) +
-  labs(title = "Progress towards 394km", 
-       y = NULL, x = NULL) +
+  labs(title = "Progress to 394km", 
+       y = "Total Distance (km)", x = NULL) +
   theme_minimal() +
-  theme(legend.position='bottom')
+  theme(legend.position='bottom'
+        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
 
-day_chart + line_chart + plot_layout(ncol = 1)
+day_chart / (daily_runs_chart + line_chart) +
+plot_annotation(
+  title = 'NYC Subway Challenge - 394Km in 15 Weeks',
+  subtitle = "Need to average 4, 7.5km runs per week to hit the target in 13 weeks ",
+  theme = theme(plot.title = element_text(size = 24))
+) +
+  plot_layout(ncol=1,heights=c(2.5,1.5))
   
 ```
 
