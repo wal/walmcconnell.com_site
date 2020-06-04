@@ -7,7 +7,7 @@ categories:
 tags:
   - running
   - strava
-lastmod: '2020-06-01T16:15:12+01:00'
+lastmod: '2020-06-02T16:15:12+01:00'
 featured: no
 draft: no
 image:
@@ -22,13 +22,35 @@ I'm targeting an average of 4 weekly runs totaling 30km per week to give me a bi
 
 I'm tracking my progress by pulling my running data down from the strava API and monitoring it here ....
 
-```{r progress_chart, echo=FALSE, fig.height=8, fig.width=6, message=FALSE, warning=FALSE}
+
+```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
 library(ggTimeSeries)
 library(lubridate)
 library(patchwork)
-library(plotly)
+library(kableExtra)
+
 plot_data <- read_csv('data/wal_strava.csv')
+
+```
+
+
+
+### Training Log
+
+```{r, echo=FALSE, warning=FALSE}
+plot_data %>%
+  select(start_date, distance) %>%
+  filter(distance > 0, start_date <= today()) %>%
+  rename(Date = start_date) %>%
+  mutate(distance = paste0(distance, 'km')) %>%
+  kable()
+```
+
+
+### Progress Tracking
+
+```{r progress_chart, echo=FALSE, fig.height=12, fig.width=8, message=FALSE, warning=FALSE}
 
 day_chart <- plot_data %>%  
   ggplot_calendar_heatmap('start_date',
@@ -80,8 +102,9 @@ line_chart <- cumsum_distance_data %>%
 
 day_chart + line_chart + plot_layout(ncol = 1)
   
-
 ```
+
+
 
 ## Pulling activity data from the Strava API using R
 
@@ -110,39 +133,76 @@ token <- oauth2.0_token(endpoint
                         , as_header = FALSE
                         , scope = "activity:read_all")
 
+
 ```
 
-3. Query the athlete/activities endpoint
+### Query the Strava athlete/activities endpoint
 
-```{r athlete_activities, eval=FALSE}
+The Strava API is paginated so you need to write code to aggregate data from multiple returned pages.
 
-page_number <- 1
-data_pages <- list()
 
-repeat {
+First a small function to call the API and return a data.frame of results
+
+```{r athlete_activities_function, eval=FALSE}
+# Function to call the strava v3/athlete/activities API
+# This API is paginated, so you need to pass a page_number and page_size to retrieve > 1 
+# page of results (default 200 results per page)
+strava_athlete_activities_api <- function(oauth_token, page_number, page_size = STRAVA_API_DEFAULT_PAGE_SIZE) {
+  print(paste0("Querying Strava V1 API v3/athlete/activities [page ", page_number, "]"))
   resp <- GET(
     url = "https://www.strava.com/api/v3/athlete/activities",
-    config = token,
-    query = list(per_page = 200, page = page_number))
+    config = oauth_token,
+    query = list(per_page = page_size, page = page_number))
   
   if (http_type(resp) != "application/json") {
     stop("API did not return json", call. = FALSE)
     break
   }
 
-  response_content <- content(resp, "text")
-  
-  data_pages[[page_number]] <- jsonlite::fromJSON(response_content, flatten = FALSE)
+  # Strava API returns data in JSON format, so parse it and return as a data.frame
+  jsonlite::fromJSON(content(resp, "text"), flatten = FALSE)
+}
+```
 
-  if (length(content(req)) < 200) {
+
+Then a loop to keep calling the API until no more results are available
+
+
+```{r call_api_loop, eval=FALSE}
+
+# A list to store the returned data into
+data_pages <- list()
+
+# Start with page #1
+page_number <- 1
+
+repeat {
+  
+# Query API
+  data_pages[[page_number]] <- strava_athlete_activities_api(token, page_number)
+  
+  # Count number of records returned
+  records_returrned <- data_pages[[page_number]] %>% nrow()
+  print(paste0('Retrieved ', records_returrned, ' records'))
+  
+  # Continue to the next page if the number of returned records matches the page size
+  if (records_returrned < STRAVA_API_DEFAULT_PAGE_SIZE) {
+    print("All records returned, exiting")
     break
   } else {
+    print("checking for more records ..")
     page_number <- page_number + 1
   }
 }
 
+# Combine the list of data frames into a single dataframe of all collected pages
 data <- rbind_pages(data_pages)
-runs_data <- data %>% filter(type == "Run")
+print(paste0('returned a total of ', data %>% nrow(), ' records'))
+
 ```
+
+You will now have the full history of your Strava activities!
+
+Full script code is [here](https://github.com/wal/stravaR/blob/master/R/download_strava.R)
 
 

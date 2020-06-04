@@ -7,7 +7,7 @@ categories:
 tags:
   - running
   - strava
-lastmod: '2020-06-01T16:15:12+01:00'
+lastmod: '2020-06-02T16:15:12+01:00'
 featured: no
 draft: no
 image:
@@ -21,7 +21,83 @@ image:
 <p>I’ve signed up to the <a href="https://nycruns.com/race/nycruns-subway-system-challenge">NYC Runs Subway Challenge</a> which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).</p>
 <p>I’m targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry.</p>
 <p>I’m tracking my progress by pulling my running data down from the strava API and monitoring it here ….</p>
-<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="576" /></p>
+<div id="training-log" class="section level3">
+<h3>Training Log</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+distance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2020-05-26
+</td>
+<td style="text-align:left;">
+7.5km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-05-27
+</td>
+<td style="text-align:left;">
+5km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-05-28
+</td>
+<td style="text-align:left;">
+10km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-05-31
+</td>
+<td style="text-align:left;">
+10km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-06-01
+</td>
+<td style="text-align:left;">
+5.5km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-06-02
+</td>
+<td style="text-align:left;">
+6km
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020-06-04
+</td>
+<td style="text-align:left;">
+10.5km
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="progress-tracking" class="section level3">
+<h3>Progress Tracking</h3>
+<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="768" /></p>
+</div>
 <div id="pulling-activity-data-from-the-strava-api-using-r" class="section level2">
 <h2>Pulling activity data from the Strava API using R</h2>
 <p>The <a href="https://developers.strava.com/docs/reference/">Strava API</a> is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.</p>
@@ -44,35 +120,59 @@ token &lt;- oauth2.0_token(endpoint
                         , app
                         , as_header = FALSE
                         , scope = &quot;activity:read_all&quot;)</code></pre>
-<ol start="3" style="list-style-type: decimal">
-<li>Query the athlete/activities endpoint</li>
-</ol>
-<pre class="r"><code>page_number &lt;- 1
-data_pages &lt;- list()
-
-repeat {
+</div>
+<div id="query-the-strava-athleteactivities-endpoint" class="section level3">
+<h3>Query the Strava athlete/activities endpoint</h3>
+<p>The Strava API is paginated so you need to write code to aggregate data from multiple returned pages.</p>
+<p>First a small function to call the API and return a data.frame of results</p>
+<pre class="r"><code># Function to call the strava v3/athlete/activities API
+# This API is paginated, so you need to pass a page_number and page_size to retrieve &gt; 1 
+# page of results (default 200 results per page)
+strava_athlete_activities_api &lt;- function(oauth_token, page_number, page_size = STRAVA_API_DEFAULT_PAGE_SIZE) {
+  print(paste0(&quot;Querying Strava V1 API v3/athlete/activities [page &quot;, page_number, &quot;]&quot;))
   resp &lt;- GET(
     url = &quot;https://www.strava.com/api/v3/athlete/activities&quot;,
-    config = token,
-    query = list(per_page = 200, page = page_number))
+    config = oauth_token,
+    query = list(per_page = page_size, page = page_number))
   
   if (http_type(resp) != &quot;application/json&quot;) {
     stop(&quot;API did not return json&quot;, call. = FALSE)
     break
   }
 
-  response_content &lt;- content(resp, &quot;text&quot;)
-  
-  data_pages[[page_number]] &lt;- jsonlite::fromJSON(response_content, flatten = FALSE)
+  # Strava API returns data in JSON format, so parse it and return as a data.frame
+  jsonlite::fromJSON(content(resp, &quot;text&quot;), flatten = FALSE)
+}</code></pre>
+<p>Then a loop to keep calling the API until no more results are available</p>
+<pre class="r"><code># A list to store the returned data into
+data_pages &lt;- list()
 
-  if (length(content(req)) &lt; 200) {
+# Start with page #1
+page_number &lt;- 1
+
+repeat {
+  
+# Query API
+  data_pages[[page_number]] &lt;- strava_athlete_activities_api(token, page_number)
+  
+  # Count number of records returned
+  records_returrned &lt;- data_pages[[page_number]] %&gt;% nrow()
+  print(paste0(&#39;Retrieved &#39;, records_returrned, &#39; records&#39;))
+  
+  # Continue to the next page if the number of returned records matches the page size
+  if (records_returrned &lt; STRAVA_API_DEFAULT_PAGE_SIZE) {
+    print(&quot;All records returned, exiting&quot;)
     break
   } else {
+    print(&quot;checking for more records ..&quot;)
     page_number &lt;- page_number + 1
   }
 }
 
+# Combine the list of data frames into a single dataframe of all collected pages
 data &lt;- rbind_pages(data_pages)
-runs_data &lt;- data %&gt;% filter(type == &quot;Run&quot;)</code></pre>
+print(paste0(&#39;returned a total of &#39;, data %&gt;% nrow(), &#39; records&#39;))</code></pre>
+<p>You will now have the full history of your Strava activities!</p>
+<p>Full script code is <a href="https://github.com/wal/stravaR/blob/master/R/download_strava.R">here</a></p>
 </div>
 </div>
