@@ -20,7 +20,7 @@ I've signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycru
 
 I'm targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
 
-I'm tracking my progress by pulling my running data down from the strava API and monitoring it here ....
+I'm tracking my progress by pulling my running data down from the strava API and monitoring it below
 
 
 ```{r data, include=FALSE, warning=FALSE}
@@ -32,29 +32,34 @@ library(kableExtra)
 
 plot_data <- read_csv('data/wal_strava.csv')
 
+blog_theme <- theme_minimal() +
+  theme(legend.position='bottom'
+        ,plot.title = element_text(color = "grey25", size = 24, face = "bold")) +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        axis.ticks.x = element_line(size = 0.25),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.5, linetype = "dashed"),
+        panel.grid.minor = element_blank())
 ```
 
+```{r progress_chart, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+calendar_data <- plot_data %>%
+  mutate(WeekOfYear = floor_date(start_date, "week", week_start = 1), 
+         DayOfWeek = lubridate::wday(start_date, label = TRUE, week_start = 1)) 
 
-### Tracking Progress
-```{r progress_chart, echo=FALSE, fig.height=10, fig.width=8, message=FALSE, warning=FALSE}
-library(ggrepel)
-day_chart <- plot_data %>%  
-  ggplot_calendar_heatmap('start_date',
-                          'distance',
-                          dayBorderSize = 0.25,
-                          dayBorderColour = "grey50",
-                          monthBorderSize = 1, 
-                          monthBorderColour = "grey50",
-                          monthBorderLineEnd = "round"
-  ) +
+day_chart <- calendar_data %>%
+  ggplot(aes(x = WeekOfYear, 
+             y = fct_rev(DayOfWeek))) +
+  geom_tile(aes(fill = distance), color = "grey50") +
+  geom_text(data = calendar_data %>% filter(distance > 0), aes(label = paste0(distance, 'km')), size=3) +
   scale_fill_gradient(low="grey80", high="darkgreen") +
-  labs(title = "Weekly runs", 
-       fill = "Run Distance (Km) ",
-       y = NULL, x = NULL) +
-  facet_null() +
-  theme_minimal() +
-  theme(legend.position='bottom'
-        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
+  labs(y = NULL, 
+       x = NULL, 
+       fill = 'Distance (km)', 
+       subtitle = "Need to average 4, 7.5km runs per week to hit the target in 13 weeks ") +
+  blog_theme
+
 
 daily_runs_chart <- plot_data %>%
   ggplot(aes(start_date, distance, color = distance)) + 
@@ -64,9 +69,7 @@ daily_runs_chart <- plot_data %>%
        y = "Distance (km)", 
        x = NULL) +
   guides(color = FALSE) +
-  theme_minimal() +
-  theme(legend.position='right' 
-        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
+  blog_theme
 
 cumsum_distance_data <- plot_data %>%
   arrange(start_date) %>%
@@ -94,18 +97,15 @@ line_chart <- cumsum_distance_data %>%
   geom_hline(yintercept = 394, color = "orange", size = 2) +
   labs(title = "Progress to 394km", 
        y = "Total Distance (km)", x = NULL) +
-  theme_minimal() +
-  theme(legend.position='bottom'
-        ,plot.title = element_text(color = "grey25", size = 20, face = "bold"))
+  blog_theme
 
 day_chart / (daily_runs_chart + line_chart) +
-plot_annotation(
-  title = 'NYC Subway Challenge - 394Km in 15 Weeks',
-  subtitle = "Need to average 4, 7.5km runs per week to hit the target in 13 weeks ",
-  theme = theme(plot.title = element_text(size = 24))
-) +
-  plot_layout(ncol=1,heights=c(2.5,1.5))
-  
+  plot_annotation(
+    title = 'NYC Subway Challenge - 394km in 15 Weeks',
+    theme = theme(plot.title = element_text(size = 24))
+  ) +
+  plot_layout(ncol=1,heights=c(2,1))
+
 ```
 
 
@@ -132,11 +132,7 @@ endpoint <- oauth_endpoint(
   access = "https://www.strava.com/oauth/token"
 )
 
-token <- oauth2.0_token(endpoint
-                        , app
-                        , as_header = FALSE
-                        , scope = "activity:read_all")
-
+token <- oauth2.0_token(endpoint, app, as_header = FALSE, scope = "activity:read_all")
 
 ```
 

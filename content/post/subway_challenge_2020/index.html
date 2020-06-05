@@ -20,11 +20,8 @@ image:
 
 <p>I’ve signed up to the <a href="https://nycruns.com/race/nycruns-subway-system-challenge">NYC Runs Subway Challenge</a> which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).</p>
 <p>I’m targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry.</p>
-<p>I’m tracking my progress by pulling my running data down from the strava API and monitoring it here ….</p>
-<div id="tracking-progress" class="section level3">
-<h3>Tracking Progress</h3>
-<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="768" /></p>
-</div>
+<p>I’m tracking my progress by pulling my running data down from the strava API and monitoring it below</p>
+<p><img src="/post/subway_challenge_2020/index_files/figure-html/progress_chart-1.png" width="672" /></p>
 <div id="pulling-activity-data-from-the-strava-api-using-r" class="section level2">
 <h2>Pulling activity data from the Strava API using R</h2>
 <p>The <a href="https://developers.strava.com/docs/reference/">Strava API</a> is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.</p>
@@ -43,10 +40,7 @@ endpoint &lt;- oauth_endpoint(
   access = &quot;https://www.strava.com/oauth/token&quot;
 )
 
-token &lt;- oauth2.0_token(endpoint
-                        , app
-                        , as_header = FALSE
-                        , scope = &quot;activity:read_all&quot;)</code></pre>
+token &lt;- oauth2.0_token(endpoint, app, as_header = FALSE, scope = &quot;activity:read_all&quot;)</code></pre>
 </div>
 <div id="query-the-strava-athleteactivities-endpoint" class="section level3">
 <h3>Query the Strava athlete/activities endpoint</h3>
