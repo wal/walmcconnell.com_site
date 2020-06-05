@@ -25,10 +25,8 @@ I'm tracking my progress by pulling my running data down from the strava API and
 
 ```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
-library(ggTimeSeries)
 library(lubridate)
 library(patchwork)
-library(kableExtra)
 
 plot_data <- read_csv('data/wal_strava.csv')
 
