@@ -18,7 +18,7 @@ image:
 
 I've signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
-I'm targeting an average of 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
+I need to average 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
 
 I'm tracking my progress by pulling my running data down from the strava API and monitoring it below
 
@@ -100,7 +100,7 @@ line_chart <- cumsum_distance_data %>%
        y = "Total Distance (km)", x = NULL) +
   blog_theme
 
-day_chart / (daily_runs_chart + line_chart) +
+(day_chart / line_chart) +
   plot_annotation(
     title = 'NYC Subway Challenge - 394km in 15 Weeks',
     theme = theme(plot.title = element_text(size = 24))
