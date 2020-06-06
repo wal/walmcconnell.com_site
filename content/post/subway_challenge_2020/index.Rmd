@@ -27,12 +27,13 @@ I'm tracking my progress by pulling my running data down from the strava API and
 library(tidyverse)
 library(lubridate)
 library(patchwork)
+library(ggrepel)
 
 plot_data <- read_csv('data/wal_strava.csv')
 
 blog_theme <- theme_minimal() +
   theme(legend.position='bottom'
-        ,plot.title = element_text(color = "grey25", size = 24) +
+        ,plot.title = element_text(color = "grey25", size = 24)) +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA),
         axis.ticks.x = element_line(size = 0.25),
@@ -90,7 +91,7 @@ line_chart <- cumsum_distance_data %>%
   ggplot(aes(start_date, total_distance)) + 
   geom_line(data = target, aes(x = start_date, y = total_target), color = "grey90", size = 0.5) +
   geom_line(color = "darkgreen", size = 2) +
-  geom_label(data = latest_value,
+  geom_label_repel(data = latest_value,
              aes(label = paste0(total_distance, 'km')),
              color = "darkgreen") +
   
