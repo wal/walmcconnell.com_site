@@ -109,8 +109,6 @@ line_chart <- cumsum_distance_data %>%
 
 ```
 
-
-
 ## Pulling activity data from the Strava API using R
 
 
