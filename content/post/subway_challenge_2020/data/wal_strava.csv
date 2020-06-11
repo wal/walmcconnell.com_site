@@ -16,7 +16,7 @@ start_date,distance,weekday,month,date,week
 2020-06-08,7,Mon,Jun,160,24
 2020-06-09,11,Tue,Jun,161,24
 2020-06-10,0,Wed,Jun,162,24
-2020-06-11,0,Thu,Jun,163,24
+2020-06-11,5.5,Thu,Jun,163,24
 2020-06-12,0,Fri,Jun,164,24
 2020-06-13,0,Sat,Jun,165,24
 2020-06-14,0,Sun,Jun,166,25

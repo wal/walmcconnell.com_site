@@ -22,7 +22,6 @@ I need to average 4 weekly runs totaling 30km per week to give me a bit of buffe
 
 I'm tracking my progress by pulling my running data down from the strava API and monitoring it below
 
-
 ```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
