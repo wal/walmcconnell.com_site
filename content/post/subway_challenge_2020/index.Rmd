@@ -110,7 +110,6 @@ line_chart <- cumsum_distance_data %>%
 
 ## Pulling activity data from the Strava API using R
 
-
     
 The [Strava API](https://developers.strava.com/docs/reference/) is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.
 
