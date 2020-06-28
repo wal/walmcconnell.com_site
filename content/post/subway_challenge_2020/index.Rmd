@@ -16,7 +16,6 @@ image:
   preview_only: no
 ---
 
-
 I've signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
 I need to average 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
