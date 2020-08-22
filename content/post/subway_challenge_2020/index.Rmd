@@ -205,4 +205,5 @@ You will now have the full history of your Strava activities!
 Full script code is [here](https://github.com/wal/stravaR/blob/master/R/download_strava.R)
 
 
+Let me know (via the messenger or LinkedIn/Twitter) if you have any thoughts, improvements or questions.
   
