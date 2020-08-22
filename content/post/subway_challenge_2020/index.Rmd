@@ -1,14 +1,14 @@
 ---
 title: NYC Runs Subway Challenge 2020 - Pulling data from the Strava API
 author: Wal
-date: '2020-06-01'
+date: '2020-08-22'
 categories:
   - fitness
 tags:
   - running
   - strava
-lastmod: '2020-06-02T16:15:12+01:00'
-featured: no
+lastmod: '2020-08-22T08:01:00+01:00'
+featured: yes
 draft: no
 image:
   caption: ''
@@ -16,11 +16,11 @@ image:
   preview_only: no
 ---
 
-I've signed up to the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 394 kilometers in the 15 weeks between Memorial Day (25th May 2020) and Labour Day (7th September 2020).
+My lockdown fitness challenge was the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 400 kilometres in the 15 weeks between  Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
-I need to average 4 weekly runs totaling 30km per week to give me a bit of buffer (will complete in 13 weeks) in case my schedule goes awry. 
+I averaged 30km per week and got things done 2 weeks early, despite a glute injury at week 10 :roll_eyes: which kept me out of action for 10 days.
 
-I'm tracking my progress by pulling my running data down from the strava API and monitoring it below
+To keep me motivated and on track I pulled my running data down regularly from the [Strava API](http://developers.strava.com/) and monitored progress along the way using the charts below which 
 
 ```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
@@ -57,7 +57,7 @@ day_chart <- calendar_data %>%
   labs(y = NULL, 
        x = NULL, 
        fill = 'Distance (km)', 
-       subtitle = "Need to average 4, 7.5km runs per week to hit the target in 13 weeks ") +
+       subtitle = "Need to average 30km runs per week to hit the target in 13 weeks ") +
   blog_theme
 
 
@@ -88,20 +88,21 @@ target <- plot_data %>%
 
 line_chart <- cumsum_distance_data %>%
   ggplot(aes(start_date, total_distance)) + 
+  geom_hline(yintercept = 400, color = "orange", size = 2) +
   geom_line(data = target, aes(x = start_date, y = total_target), color = "grey90", size = 0.5) +
   geom_line(color = "darkgreen", size = 2) +
   geom_label_repel(data = latest_value,
              aes(label = paste0(total_distance, 'km')),
              color = "darkgreen") +
   
-  geom_hline(yintercept = 394, color = "orange", size = 2) +
-  labs(title = "Progress to 394km", 
+  
+  labs(title = "Progress to 400km", 
        y = "Total Distance (km)", x = NULL) +
   blog_theme
 
 (day_chart / line_chart) +
   plot_annotation(
-    title = 'NYC Subway Challenge - 394km in 15 Weeks',
+    title = 'NYC Subway Challenge - 400km in 15 Weeks',
     theme = theme(plot.title = element_text(size = 24))
   ) +
   plot_layout(ncol=1)
@@ -111,7 +112,7 @@ line_chart <- cumsum_distance_data %>%
 ## Pulling activity data from the Strava API using R
 
     
-The [Strava API](https://developers.strava.com/docs/reference/) is straight forward to query once you get over the authenttication hurdles. I use R to query the API to generate the the above charts.
+The [Strava API](https://developers.strava.com/docs/reference/) is straight forward to query once you get over the authentication hurdles. I use R to query the API to generate the the above charts.
 
 ### OAuth Authentication
 
