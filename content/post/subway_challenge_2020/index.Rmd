@@ -20,7 +20,7 @@ My lockdown fitness challenge was the [NYC Runs Subway Challenge](https://nycrun
 
 I averaged 30km per week and got things done 2 weeks early, despite a glute injury at week 10 :roll_eyes: which kept me out of action for 10 days.
 
-To keep me motivated and on track I pulled my running data down regularly from the [Strava API](http://developers.strava.com/) and monitored progress along the way using the charts below which 
+To keep me motivated and on track I pulled my running data down regularly from the [Strava API](http://developers.strava.com/) and monitored progress along the way using the charts below. I found these two simple charts enough to keep me on track.
 
 ```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
