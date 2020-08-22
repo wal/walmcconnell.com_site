@@ -109,6 +109,9 @@ line_chart <- cumsum_distance_data %>%
 
 ```
 
+
+ggplot code for these charts is [here](https://github.com/wal/walmcconnell.com_site/blob/master/content/post/subway_challenge_2020/index.Rmd#L44)
+
 ## Pulling activity data from the Strava API using R
 
     
