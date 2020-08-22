@@ -18,9 +18,9 @@ image:
 
 My 2020 lockdown fitness challenge was the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 400 kilometres in the 15 weeks between  Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
-I averaged 30km per week and got things done 2 weeks early, despite a glute injury at week 10 :roll_eyes: which kept me out of action for 10 days.
+I averaged 30km per week and got things done 2 weeks early, despite a :roll_eyes: glute injury at week 10 which kept me out of action for 10 days.
 
-To keep me motivated and on track I pulled my running data down regularly from the [Strava API](http://developers.strava.com/) and monitored progress along the way using the charts below. I found these two simple charts enough to keep me on track.
+To keep me motivated and on track I pulled my running data down regularly from the [Strava API](http://developers.strava.com/) and monitored my progress along the way using the charts below. I found these two simple charts enough to keep me on track.
 
 ```{r data, include=FALSE, warning=FALSE}
 library(tidyverse)
@@ -200,10 +200,10 @@ print(paste0('returned a total of ', data %>% nrow(), ' records'))
 
 ```
 
-You will now have the full history of your Strava activities!
+You will now have the full history of your Strava activities! Hopefully you can use this to chart and analyse your own strava activity!
 
 Full script code is [here](https://github.com/wal/stravaR/blob/master/R/download_strava.R)
 
 
-Let me know (via the messenger or LinkedIn/Twitter) if you have any thoughts, improvements or questions.
+Let me know (via the messenger or LinkedIn/Twitter) if you have any thoughts, improvements or questions, PR's welcome.
   
