@@ -16,7 +16,7 @@ image:
   preview_only: no
 ---
 
-My lockdown fitness challenge was the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 400 kilometres in the 15 weeks between  Memorial Day (25th May 2020) and Labour Day (7th September 2020).
+My 2020 lockdown fitness challenge was the [NYC Runs Subway Challenge](https://nycruns.com/race/nycruns-subway-system-challenge) which involves running a total of 245 miles / 400 kilometres in the 15 weeks between  Memorial Day (25th May 2020) and Labour Day (7th September 2020).
 
 I averaged 30km per week and got things done 2 weeks early, despite a glute injury at week 10 :roll_eyes: which kept me out of action for 10 days.
 
